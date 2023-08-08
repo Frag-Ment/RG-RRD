@@ -1,5 +1,5 @@
 # RL-GNN-for-RCPSP
-A program implemented by Pytorch for solving RCPSP and RCPSP with resource distrubtions, based on graph neural network and reinforcement learning
+A program implemented by Pytorch for solving RCPSP and RCPSP with resource disruptions, based on graph neural network and reinforcement learning
 
 ## Requirements:  
 Python >=3.6  
