@@ -21,7 +21,7 @@ Use Tensorboard to monitor training process
 As discussed in the paper, I think the bottleneck of using these GNN-related method to slove scheduling problems lies in the feature extraction capability and receptive field of GNN. In order to improve the performance, I suggest changing the structure of the GNN, using a structure that can effectively extract information from very distant nodes (such as using Mixhop layers?), and then using supervised learning to quickly verify the GNN learning ability. 
 
 ## Specially thanks!
-Part of the GNN code comes from L2D https://github.com/zcaicaros/L2D. The method of this paper mainly imitates them.
+Part of the GNN code comes from L2D https://github.com/zcaicaros/L2D, the method of this paper mainly imitates them.  
 The code of PPO is modified from CleanRL https://github.com/vwxyzjn/cleanrl  
 Specially thanks to them!  
 
