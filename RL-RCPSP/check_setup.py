@@ -54,23 +54,40 @@ def check_dependencies():
 
 
 def check_cuda():
-    """Check CUDA availability"""
-    print("\nChecking CUDA/GPU...")
+    """Check GPU availability (CUDA or MPS)"""
+    print("\nChecking GPU...")
 
     try:
         import torch
+        import platform
+
+        # Check for CUDA (NVIDIA)
         if torch.cuda.is_available():
             device_count = torch.cuda.device_count()
             device_name = torch.cuda.get_device_name(0)
             print(f"  ✓ CUDA available: {device_count} device(s)")
             print(f"    Device 0: {device_name}")
             return True
+
+        # Check for MPS (Apple Silicon - M1/M2/M3)
+        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+            print(f"  ✓ MPS (Apple Silicon GPU) available")
+            print(f"    Device: Metal Performance Shaders")
+            print(f"    Platform: {platform.machine()}")
+            print(f"    Training will be fast on Mac M2!")
+            return True
+
+        # Fallback to CPU
         else:
-            print(f"  ⚠ CUDA not available - will use CPU")
-            print(f"    Training will be slower (~10x)")
+            print(f"  ⚠ No GPU available - will use CPU")
+            print(f"    Training will be slower (~5-10x)")
+            if platform.machine() == 'arm64':
+                print(f"    Note: You have Apple Silicon. Ensure PyTorch 2.0+ is installed:")
+                print(f"          pip3 install --upgrade torch torchvision")
             return False
+
     except ImportError:
-        print(f"  ✗ Cannot check CUDA (torch not installed)")
+        print(f"  ✗ Cannot check GPU (torch not installed)")
         return False
 
 
@@ -215,7 +232,13 @@ def test_agent():
         import torch
         from model.hierarchical_agent import HierarchicalAgent
 
-        device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+        # Auto-detect device (MPS, CUDA, or CPU)
+        if torch.cuda.is_available():
+            device = 'cuda:0'
+        elif hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+            device = 'mps'
+        else:
+            device = 'cpu'
 
         agent = HierarchicalAgent(
             project_feature_dim=8,

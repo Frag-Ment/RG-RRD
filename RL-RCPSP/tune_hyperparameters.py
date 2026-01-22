@@ -23,6 +23,7 @@ import copy
 from model.hierarchical_agent import HierarchicalAgent
 from mrcmpsp_simulator.mrcmpsp_env import MRCMPSPEnvironment
 from MISTADataLoader import MISTADataLoader
+from device_config import get_device
 
 
 class HyperparameterConfig:
@@ -430,8 +431,9 @@ def run_hyperparameter_search(search_type='random', n_configs=10, timesteps_per_
     print("Automatic Hyperparameter Tuning for MRCMPSP")
     print("="*70)
 
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    print(f"\nUsing device: {device}")
+    # Auto-detect best device (MPS for Mac M2, CUDA for NVIDIA, CPU fallback)
+    device, device_name = get_device()
+    print(f"\nUsing device: {device} ({device_name})")
 
     # Load data
     print("\nLoading MISTA data...")

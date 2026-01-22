@@ -17,6 +17,7 @@ import json
 from model.hierarchical_agent import HierarchicalAgent
 from mrcmpsp_simulator.mrcmpsp_env import MRCMPSPEnvironment
 from MISTADataLoader import MISTADataLoader
+from device_config import get_device, get_memory_config
 
 # Hyperparameters
 class MRCMPSPArgs:
@@ -131,8 +132,17 @@ np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 torch.backends.cudnn.deterministic = args.torch_deterministic
 
-device = torch.device("cuda" if torch.cuda.is_available() and args.cuda else "cpu")
-print(f"Using device: {device}")
+# Auto-detect best device (MPS for Mac M2, CUDA for NVIDIA, CPU fallback)
+device_str, device_name = get_device()
+device = torch.device(device_str)
+print(f"\nDevice: {device_str} ({device_name})")
+
+# Get memory-optimized configuration
+device_type = 'mps' if device_str == 'mps' else ('cuda' if 'cuda' in device_str else 'cpu')
+mem_config = get_memory_config(device_type, total_ram_gb=16)
+print(f"Memory Config: {mem_config['description']}")
+print(f"  Recommended: num_envs={mem_config['num_envs']}, "
+      f"gnn_hidden_dim={mem_config['gnn_hidden_dim']}")
 
 # Load MISTA data
 print("\n" + "="*60)

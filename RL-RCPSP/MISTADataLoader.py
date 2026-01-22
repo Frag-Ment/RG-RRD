@@ -182,23 +182,38 @@ class MISTADataLoader:
         with open(filepath, 'r') as f:
             lines = [line.strip() for line in f.readlines() if line.strip()]
 
+        if len(lines) < 3:
+            raise ValueError(f"Invalid file format: expected at least 3 lines, got {len(lines)}")
+
         num_projects = int(lines[0])
+        # Line 1 is typically 0 (reserved/unused)
         global_resource = int(lines[2])
 
         projects = []
         idx = 3
 
         for proj_id in range(num_projects):
+            if idx >= len(lines):
+                raise ValueError(f"Unexpected end of file at project {proj_id}")
+
             # Read project file path
             project_file = lines[idx]
             idx += 1
+
+            if idx >= len(lines):
+                raise ValueError(f"Missing resource value for project {proj_id}")
 
             # Read resource value (we'll use this as a multiplier or priority)
             resource_val = int(lines[idx])
             idx += 1
 
-            # Read due date
-            due_date = int(lines[idx])
+            if idx >= len(lines):
+                raise ValueError(f"Missing due date for project {proj_id}")
+
+            # Read due date (last line may have format "due_date\t-1\t-1\t-1")
+            # Take only the first value
+            due_date_str = lines[idx].split()[0] if lines[idx] else "0"
+            due_date = int(due_date_str)
             idx += 1
 
             # Load the actual project data
